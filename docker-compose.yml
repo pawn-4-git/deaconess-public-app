@@ -1,0 +1,29 @@
+services:
+  deaconess-api-app:
+    image: openjdk:22
+    container_name: deaconess-api-app
+    ports:
+      - 4510:8080
+    tty: true
+    stdin_open: true
+    volumes:
+      - ./server:/srv:cached
+    working_dir: /srv
+    depends_on:
+      - deaconess-db
+
+  deaconess-db:
+    image: postgres:16.4
+    container_name: deaconess-db
+    environment:
+      POSTGRES_USER: "task"
+      POSTGRES_PASSWORD: "taskpass"
+      POSTGRES_DB: "task"
+    ports:
+      - "4512:5432"
+    volumes:
+      - dbvol:/var/lib/postgresql/data
+      - ./forDocker/db/initdb:/docker-entrypoint-initdb.d
+
+volumes:
+  dbvol:

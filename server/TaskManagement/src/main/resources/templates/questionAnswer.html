@@ -1,0 +1,106 @@
+<html xmlns:th="http://www. thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>お助けシステム</title>
+    <link rel="stylesheet" href="/css/quetion_and_answer.css" type="text/css"/>
+</head>
+
+<body>
+    <div>
+        <h1 th:text="${topMenu.menuName}"></h1>
+        <div th:each="questionAnswer : ${questionAnswerList}">
+            <h2 th:text = "${questionAnswer.questionAnswerMenuDetail.detailName}"/>
+            <div th:each="questionAnswerMenuDetailAnswer : ${questionAnswer.questionAnswerMenuDetailAnswerList}">
+                <p th:text="${questionAnswerMenuDetailAnswer.questionText}" class="speech-bubble speech-bubble-question" />
+                <br/>
+                   <textarea  class="speech-bubble speech-bubble-input" th:id="${'input_' + questionAnswerMenuDetailAnswer.detailNo +'_'+ questionAnswerMenuDetailAnswer.answerNo}"></textarea><br/>
+                <div class="answer-part">
+                   <div class="speech-bubble speech-bubble-answer" th:id="${'answer_'+ questionAnswerMenuDetailAnswer.detailNo +'_'+ questionAnswerMenuDetailAnswer.answerNo}">入力したらメイドちゃんを押してください</div>
+                   <button th:id="${'button_'+ questionAnswerMenuDetailAnswer.detailNo +'_'+ questionAnswerMenuDetailAnswer.answerNo}"
+                        th:attr="data-answertype=${questionAnswerMenuDetailAnswer.questionType}, data-detail=${questionAnswerMenuDetailAnswer.detailNo}, data-answer=${questionAnswerMenuDetailAnswer.answerNo}"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // すべてのボタンにクリックイベントを設定
+        document.querySelectorAll('button').forEach(button => {
+            button.addEventListener('click', function(event) {
+                // event.targetでクリックされた要素を取得
+                const clickedButton = event.target;
+                console.log('Clicked Button:', clickedButton);
+
+                // ボタンのIDやテキストを取得する
+                console.log('Button ID:', clickedButton.id);
+                console.log('Button Text:', clickedButton.textContent);
+                const detailNo=button.dataset.detail;
+                const answerNo=button.dataset.answer;
+                const answerType=button.dataset.answertype;
+                let inputText=document.getElementById('input_'+detailNo+'_'+answerNo);
+                let answerText=document.getElementById('answer_'+detailNo+'_'+answerNo);
+
+                const url = '/get_answer_for_answer';
+
+                if(inputText.value == null || inputText.value === ''){
+                    window.alert('入力してください');
+                    return;
+                }
+                let data;
+                if(answerType === "1"){
+                    data = {
+                      inputText: inputText.value,
+                      urlPath: window.location.pathname,
+                      detailNo: detailNo,
+                      answerNo: answerNo
+                    };
+                }else if(answerType === "2"){
+                    let beforeAnswer =[];
+                    if(parseInt(answerNo,10) != 1){
+                        for(let i=1;i<parseInt(answerNo,10);i++){
+                            let inputTextBefore=document.getElementById('input_'+detailNo+'_'+i).value;
+                            let answerTextBefore=document.getElementById('answer_'+detailNo+'_'+i).innerText;
+                            let before = {
+                                 inputText: inputTextBefore,
+                                 answerText: answerTextBefore
+                            }
+                            beforeAnswer.push(before);
+                        }
+                    }
+                    data = {
+                      inputText: inputText.value,
+                      beforeAnswer: beforeAnswer,
+                      urlPath: window.location.pathname,
+                      detailNo: detailNo,
+                      answerNo: answerNo
+                    };
+                }
+
+                fetch(url, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(data)
+                })
+                  .then(
+                       //response => response.json()
+                       //response => console.log(response.json().responseText)
+                       //response => answerText.innerText=response.json().responseText
+                  　　　//return response.json()
+                       response => {
+                            // レスポンスをJSONとしてパースする
+                            return response.json();
+                       }
+                  )
+                  .then(
+                      data => answerText.innerText=data.responseText
+                  )
+                  .catch(error => console.error('Error:', error));
+            });
+        });
+    </script>
+
+</body>
+
+</html>

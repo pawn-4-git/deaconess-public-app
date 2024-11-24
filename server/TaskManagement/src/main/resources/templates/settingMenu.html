@@ -1,0 +1,19 @@
+<html xmlns:th="http://www. thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>設定</title>
+</head>
+
+<body>
+<div>
+    <h1>
+        設定
+    </h1>
+    <select class="dropdown form-control">
+        <option th:value="0"></option>
+        <option th:each="setting : ${settings}" th:value="${setting.value}" th:text="${setting.key}"></option>
+    </select>
+</div>
+</body>
+
+</html>

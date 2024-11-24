@@ -1,0 +1,19 @@
+<html xmlns:th="http://www. thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>お助けシステム</title>
+</head>
+
+<body>
+    <div>
+        <h1>
+            ようこそ！<br>
+        </h1>
+        <li th:each="topMenu : ${topMenuList}">
+            <a th:href="${topMenu.urlPath}"><span th:text="${topMenu.menuName}"></span></a>
+        </li>
+    </div>
+</body>
+
+</html>
